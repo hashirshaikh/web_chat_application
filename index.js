@@ -18,9 +18,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Serve static files from React app
-app.use(express.static(path.join(__dirname, 'client')));
+// Serve built frontend assets from production build
 app.use(express.static(path.join(__dirname, 'client/dist')));
+app.use(express.static(path.join(__dirname, 'client/public')));
 
 // implementing routes to middlewares
 app.use('/auth', authRoutes);
@@ -28,7 +28,10 @@ app.use('/rooms', roomRoutes);
 app.use('/chats', chatRoutes);
 app.use('/', mainRoutes);
 
-app.get(/.*/, (req, res) => {
+app.get(/.*/, (req, res, next) => {
+    if (req.path.includes('.')) {
+        return next();
+    }
     res.sendFile(path.join(__dirname, 'client/dist/index.html'));
 });
 
